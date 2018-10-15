@@ -1,0 +1,207 @@
+---
+title: "Z Table"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+**Quesetion-1**
+Use R to build the positive half of the paper z table (from 0 to 3.99). Build each column separately. Then use cbind() or data.frame() to combine the columns into a single matrix or data.frame. Call it mymat, and name the rows and columns like in the paper table. At the end, type mymat to display your matrix. 
+
+
+```{r}
+
+#Answer(1)----------------------------------------
+
+#build row and column labels.
+myrows <- .1*(0:39)
+mycols <- .01*(0:9)
+
+#build the first column by passing its input vec to pnorm ().
+vec <- myrows
+mymatp1=pnorm(vec)
+
+#build next columns with loop and combine columns into a matrix.
+for(i in 1:9) {
+  
+    #make vec_next (the input of next column).
+    vec_nex=vec+0.01*i
+    
+    #pass vec_nex to pnorm( ) and compute table column and combine it with last columns.
+    mymatp1=cbind(mymatp1,pnorm(vec_nex))
+}
+
+#name rows and columns like the paper table.
+rownames(mymatp1) <- myrows
+colnames(mymatp1) <- mycols
+
+#display mymat.
+View(mymatp1) 
+
+```
+
+**Quesetion-2**
+Construct mymat again, but this time build each row separately and use rbind() to append it to the table. There are many rows, so use a for{} loop. 
+
+```{r}
+#Answer(2)----------------------------------------
+
+#build row and column labels.
+myrows <-  seq(0,3.99, by=.1)
+mycols <-  seq(0,0.09, by=.01)
+
+#build the first row by passing its input vec to pnorm ().
+vec2=mycols
+mymatp2=pnorm(vec2)
+
+#build next columns with loop and combine columns into a matrix.
+for(i in 1:39) {
+  
+    #make vec_next (the input of next row).
+    vec_nex=vec2+0.1*i
+    
+    #pass vec_nex to pnorm( ) and compute table row and combine it with last rows.
+    mymatp2=rbind(mymatp2,pnorm(vec_nex))
+    }
+
+#name rows and columns like the paper table.
+rownames(mymatp2) <- myrows
+colnames(mymatp2) <- mycols
+
+#display mymat.
+View(mymatp2) 
+
+```
+**Quesetion-3**
+One more time, but now ???ll the table one cell at a time. This approach will require two nested for{}loops. 
+
+```{r}
+#Answer(3)----------------------------------------
+
+#build row and column labels.
+myrows <- .1*c(0:39)
+mycols <- .01*c(0:9)
+
+#create the full-size matrix and fill its cells with zero.
+mymatp3 <- matrix(0,nrow=40, ncol=10) 
+
+#lable our matrix
+rownames(mymatp3) <- myrows 	
+colnames(mymatp3) <- mycols
+
+# "i" will be rows' index, "j" will be columns' index.
+for(i in 1:40){
+  for(j in 1:10){
+    
+    #fill cell[i,j] of matrix with pnorm().
+    mymatp3[i,j] <- pnorm(myrows[i]+mycols[j])
+  }
+} 
+
+#display mymat.
+View(mymatp3) 
+
+```
+**Quesetion-4**
+No loops this time.
+
+```{r}
+#Answer(4)----------------------------------------
+
+#create a vector with elements 0,.01,...,3.99.
+xvec<- seq(0,3.99,0.01)
+
+#build another vector containing pnorm() of the elements.
+pvec<- pnorm(xvec)
+
+#pass the vectors to the matrix function.
+mymatp4=matrix(pvec,40,10,byrow = TRUE)
+
+#build row and column labels.
+myrows <- .1*(0:39)
+mycols <- .01*(0:9)
+
+#lable our matrix.
+dimnames(mymatp4) <- list(myrows[1:40], mycols[1:10])
+
+#display mymat.
+View(mymatp4)
+
+```
+ 
+**Quesetion-5** 
+Finally, we will build all of the paper table, both the negative and positive parts.
+
+
+```{r}
+#part(5)----------------------------------------
+
+#create a vector with both negative and positive parts.
+#First way
+x<- seq(-3.99,0,0.01)
+y<- seq(0,3.99,0.01)
+xvec=c(x,y)
+
+#Second way
+xvec_1<-0.01*array(-399:399)
+xvec_1=append(xvec_1,0,after=400)
+
+#Third way
+xvec_2<- 0.01*c(-399:400)
+xvec_2[401:800]=xvec_2[401:800]-0.01
+
+
+#build another vector containing pnorm() of the elements.
+pvec<- round(pnorm(xvec),5)
+
+
+#Negative part
+#separate the probability of ngative part in our vecctor.
+pvec_N=pvec[1:400]
+
+#pass the vectors to the matrix function.
+mymat_num=matrix(pvec_N,40,10,byrow = TRUE)
+
+#unlike the positive part,in the negative part of paper table the probabilities 
+#of each row are in decreasing order, so I will sort each part large to small.
+#I multiply the entire matrix by negative one so that I can sort them from biggest 
+#to smallest using apply_sort function.I transpose the matrix back to the original
+#shape.
+mymat_num_neg=-mymat_num
+mymat5_1=-t(apply(mymat_num_neg,1,sort))
+
+#build row and column labels.
+mycols <- .01*(0:9)
+myrows <- .1*(-39:0)
+
+#lable our matrix.
+dimnames(mymat5_1) <- list(myrows,mycols)
+
+
+#positive part
+#separate the probabilities of positive part in our vecctor.
+pvec_p=pvec[401:800]
+
+#pass the data to the matrix function.
+mymat5_2=matrix(pvec_p,40,10,byrow = TRUE)
+
+#build row and column labels.
+myrows <- .1*(0:39)
+mycols <- .01*(0:9)
+
+#lable our matrix, just the row part.
+dimnames(mymat5_2) <- list(myrows, NULL)
+
+
+#rbind negative and positive rows together
+mymat=rbind(mymat5_1,mymat5_2)
+
+#display mymat.
+mymat
+```
+
