@@ -1,0 +1,157 @@
+---
+title: "Dice"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+**Question**
+
+Consider rolling two fair dice; suppose one die is red and the other is blue. Let
+
+**D1 = the outcome of the red die**
+  
+**D2 = the outcome of the blue die**
+  
+**Y = D1 + D2** 
+
+Concise instructions: Use R to build the pmf (probability mass function) for D1 as a two-column data.frame, and use this table to compute its mean, variance (twice! see details below), and standard deviation. Repeat these steps for D2 and for Y . Use matrix multiplication wherever possible.
+
+
+
+```{r}
+#1. Build the pmf for D1------------------------------------------------------------
+
+#possible outcomes.
+k=c(1,2,3,4,5,6)
+
+#probability of outcomes.
+pk=c(1/6,1/6,1/6,1/6,1/6,1/6)
+
+#build a data.frame.
+pmfD1=data.frame(k,pk)
+pmfD1
+
+#verify the probabilities add up to one
+sum(pmfD1$pk)
+
+#2. Compute the mean----------------------------------------------------------------
+mu1=k%*%pk
+mu1
+
+#3. compute variance using the defination------------------------------------------- 
+var1_1=((k-as.vector(mu1))^2)%*%pk
+var1_1
+
+#using the shortcut formula of variance
+var1_2=((k^2)%*%pk)-(mu1^2)
+var1_2
+
+#4. compute the standard deviation--------------------------------------------------
+sd1=sqrt(var1_1)
+sd1
+
+#5. Repeat steps 1-4 for D2---------------------------------------------------------
+
+k=c(1,2,3,4,5,6)
+pk=c(1/6,1/6,1/6,1/6,1/6,1/6)
+
+pmfD2=data.frame(k,pk)
+pmfD2
+
+sum(pmfD2$pk)
+
+mu2=k%*%pk
+mu2
+
+var2_1=((k-as.vector(mu2))^2)%*%pk
+var2_1
+
+var2_2=((k^2)%*%pk)-(mu2^2)
+var2_2
+
+sd2=sqrt(var2_2)
+sd2
+
+#5. Repeat steps 1-4 for Y----------------------------------------------------------
+
+#build row and column labels.
+myrows <-c(1:6)
+mycols <-c(1:6)
+
+#create the full-size matrix and fill its cells with zero.
+y <- matrix(0,nrow=6, ncol=6) 
+
+#lable our matrix
+rownames(y) <- myrows 	
+colnames(y) <- mycols
+
+# "i" will be rows' index, "j" will be columns' index.
+for(i in 1:6){
+  for(j in 1:6){
+    
+    #fill cell[i,j] of matrix.
+    y[i,j] <-myrows[i]+mycols[j]
+    
+
+  }
+} 
+
+#display y.
+View(y) 
+
+#possible outcomes.
+k=c(2:12)
+
+#probability of outcomes:
+
+##build a vector with 12 element of zero.
+pk=0*c(1:11)
+
+##fill the vector with probabilities.
+for(r in 2:12)
+{
+  #count the number of occurrence.
+  pk[r-1]=(sum(match(y,r,nomatch =0))/36)
+}
+pk
+
+#build a data.frame.
+pmfy=data.frame(k,pk)
+pmfy  
+
+#verify the probabilities add up to one  
+sum(pmfy$pk)
+
+#Compute the mean
+mu=pk%*%k
+mu
+
+#compute variance using the defination
+var_1=((k-as.vector(mu))^2)%*%pk
+var_1
+
+#using the shortcut formula of variance
+var_2=((k^2)%*%pk)-(mu^2)
+var_2
+
+#compute the standard deviation
+sd2=sqrt(var_2)
+sd2
+
+
+
+```
+
+
+
+
+
+
+
