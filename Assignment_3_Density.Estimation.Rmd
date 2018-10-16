@@ -1,0 +1,114 @@
+---
+title: "Density Estimation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+#creat a  box function (part three)---------------------------------
+
+mybox <- function(xpoint, data_size, xrange, bin_width)
+  {
+    min_bound=xpoint-bin_width/2
+    max_bound=xpoint+bin_width/2-0.000001
+  outvec <- 1/data_size * dunif(xrange,min_bound,max_bound)
+  return(outvec)
+}
+
+#creat a  nurmal function (part five)-----------------------------
+mybump <- function(xpoint, data_size, xrange, bin_width)
+{
+  outvec <- 1/data_size * dnorm(xrange, xpoint,bin_width/2)
+  return(outvec)
+}
+
+# creat a  hist function (part three)-----------------------------
+
+Myhist_unif<-function(Mydata, xrange, binwidth) {
+
+  histbox <- rep(0, length(xrange))
+  datasize=length(Mydata)
+  for(k in 1:datasize){
+    bin_x_number=floor((Mydata[k]-xrange[1])/binwidth)
+    boxk <- mybox(xrange[1]+(bin_x_number+0.5)*binwidth, datasize, xrange, binwidth-0.0000005)
+   histbox <- histbox + boxk
+  }
+   for(k in 1: length(xrange)) {
+     if (k>1 & k<length(xrange)) {
+       if (histbox[k]==0 & histbox[k-1]!=0 & histbox[k+1]!=0) {
+         histbox[k]=(histbox[k-1]+histbox[k+1])/2
+       }
+     }
+  }
+  return(histbox)
+}
+
+# creat a  hist function for (part five)----------------------
+
+Myhist_norm<-function(Mydata, xrange, binwidth) {
+  
+  histbox <- rep(0, length(xrange))
+  datasize=length(Mydata)
+  for(k in 1:datasize){
+    bin_x_number=floor((Mydata[k]-xrange[1])/binwidth)
+    boxk <- mybump(xrange[1]+(bin_x_number+0.5)*binwidth, datasize, xrange, binwidth)
+    histbox <- histbox + boxk
+  }
+  for(k in 1: length(xrange)) {
+    if (k>1 & k<length(xrange)) {
+      if (histbox[k]==0 & histbox[k-1]!=0 & histbox[k+1]!=0) {
+        histbox[k]=(histbox[k-1]+histbox[k+1])/2
+      }
+    }
+  }
+  return(histbox)
+}
+
+
+#define the number of random samples
+data.size=30
+
+
+#define the bin width-------------------------------------------------
+bin.width=0.5
+#right bin width
+#bin.width=0.5
+
+#oversmoothed histogram
+#bin.width=2.5
+
+#undersmoothed histogram
+#bin.width=0.05
+
+#generate a data vector
+x.dat <- sort(rnorm(data.size))
+
+#generate a vector for histogram------------------------------------
+xVec <- seq(floor(x.dat[1])-1, ceiling(x.dat[data.size])+1, by= .001)
+
+hist(x.dat, prob=T, col='grey', border=2, ylim = c(0, .45))
+rug(x.dat)
+abline(h=(1/data.size)*(1:data.size), col='white', lwd=2)
+lines(xVec, dnorm(xVec), col=3, lwd=2)
+
+#redefine bin width and bin number----------------------------------
+xVec.min=min(xVec)
+xVec.max=max(xVec)
+xVec.length=xVec.max-xVec.min
+bin.number=ceiling(xVec.length/bin.width)
+bin.width.new=xVec.length/bin.number
+
+hist.Ucurve=Myhist_unif(x.dat,xVec,bin.width.new)
+lines(xVec, hist.Ucurve, col=4, lwd=3)
+
+hist.Ncurve=Myhist_norm(x.dat,xVec,bin.width.new)
+lines(xVec, hist.Ncurve, col=4, lwd=3)
+
+
+
+```
+
